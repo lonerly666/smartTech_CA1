@@ -23,7 +23,7 @@ import os
 
 DATA_DIR = "C://Users//PC//Downloads//tiny-imagenet-200//tiny-imagenet-200//"
 FOLDERS_TO_TRAIN = "wnids.txt"
-VALIDATION_TEXT = "val_annotations"
+VALIDATION_TEXT = "val//val_annotations.txt"
 
 
 # def region_of_interest(image):
@@ -49,10 +49,19 @@ def import_training_data():
 
 def import_validation_data():
     validation_paths = []
-    validation_labels=[]
-    with open(DATA_DIR+)
+    validation_labels = []
+    validation_crop = []
+    with open(DATA_DIR + VALIDATION_TEXT) as f:
+        temp = f.readlines()
+        for info in temp:
+            formatted_info = info.split()
+            validation_paths.append(formatted_info[0])
+            validation_labels.append(formatted_info[1])
+            validation_crop.append(list(formatted_info[2:]))
+    return validation_paths, validation_labels, validation_crop
 
 
 # x_train, y_train = import_training_data()
 
 # print(x_train)
+x_val, y_val, val_crop = import_validation_data()
