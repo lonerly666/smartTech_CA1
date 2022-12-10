@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -22,9 +26,9 @@ import pandas as pd
 import ntpath
 import os
 
-DATA_DIR = "C://Users//PC//Downloads//tiny-imagenet-200//tiny-imagenet-200//"
+DATA_DIR = os.getenv('DATA_DIR')
 FOLDERS_TO_TRAIN = "wnids.txt"
-VALIDATION_TEXT = "val//val_annotations.txt"
+VALIDATION_TEXT = os.getenv('VALIDATION_TEXT')
 
 
 def preprocess_img(img):
