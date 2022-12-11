@@ -10,4 +10,4 @@ Instructions to run:
 2. `cd <rootDirName>`
 3. Create .env file as follows:
 `ROOT_DIR=${PWD}`
-4. Run the pipeline using `./run.sh`. Please execute this file only from `<rootDirName>`
+4. Run the pipeline using `./run.sh`. Please execute this file only from `<rootDirName>`. The `run.sh` script will download the `tiny-imagenet-200` folder (which contains the images) on <rootDirName>
