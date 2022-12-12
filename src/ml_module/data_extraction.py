@@ -2,6 +2,7 @@ import io
 import zipfile
 import requests
 import os
+import matplotlib.image as mpimg
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -37,40 +38,46 @@ def download():
 
 
 def import_training_data():
-    training_paths = []
-    training_labels = []
-    training_crop = {}
-    with open(DATA_DIR + FOLDERS_TO_TRAIN) as f:
-        folders = list(f.read().splitlines())
-    for folder in folders:
-        img_folder = DATA_DIR + "train//" + folder + "//images//"
-        for paths in os.listdir(img_folder):
-            training_paths.append(img_folder + paths)
-            training_labels.append(folder)
-    for folder in folders:
-        img_box = DATA_DIR + "train//" + folder + "//" + folder + "_boxes.txt"
-        with open(img_box) as i:
-            temp = i.readlines()
-            for info in temp:
-                formatted_info = info.split()
-                training_crop[formatted_info[0]] = list(formatted_info[1:])
-    return training_paths, training_labels, training_crop
+	training_images = []
+	training_labels = []
+    
+	with open(DATA_DIR + FOLDERS_TO_TRAIN) as f:
+		folders = list(f.read().splitlines())
+	
+	index = 0
+	image_name_index = {}
+	for folder in folders:
+		img_folder = DATA_DIR + "train//" + folder + "//images//"
+		for img_name in os.listdir(img_folder):
+			training_images.append(mpimg.imread(img_folder + img_name))
+			training_labels.append(folder)
+			image_name_index[img_name] = index
+			index += 1
+	
+	training_crop = [None for _ in range(len(training_images))]
+	for folder in folders:
+		img_box = DATA_DIR + "train//" + folder + "//" + folder + "_boxes.txt"
+		with open(img_box) as i:
+			temp = i.readlines()
+			for info in temp:
+				formatted_info = info.split()
+				training_crop[image_name_index[formatted_info[0]]] = list(map(int, formatted_info[1:]))
+	return training_images, training_labels, training_crop
 
 
 def import_validation_data():
-    validation_paths = []
-    validation_labels = []
-    validation_crop = {}
-    with open(DATA_DIR + VALIDATION_TEXT) as f:
-        temp = f.readlines()
-        for info in temp:
-            formatted_info = info.split()
-            validation_paths.append(
-                DATA_DIR + "val//images//" + formatted_info[0])
-            validation_labels.append(formatted_info[1])
-            validation_crop[formatted_info[0]] = list(
-                map(int, formatted_info[2:]))
-    return validation_paths, validation_labels, validation_crop
+	validation_images = []
+	validation_labels = []
+	validation_crop = []	
+
+	with open(DATA_DIR + VALIDATION_TEXT) as f:
+		temp = f.readlines()
+		for info in temp:
+			formatted_info = info.split()
+			validation_images.append(mpimg.imread(DATA_DIR + "val//images//" + formatted_info[0]))
+			validation_labels.append(formatted_info[1])
+			validation_crop.append(list(map(int, formatted_info[2:])))
+	return validation_images, validation_labels, validation_crop
 
 
 def extract_data():

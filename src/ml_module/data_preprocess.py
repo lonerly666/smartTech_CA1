@@ -21,16 +21,11 @@ def zeroes_outside_boundedbox(img, x_min, y_min, x_max, y_max):
 # Given bounded boxes points for the training and the validation dataset, transform the images in such a way that makes
 # the bounded box area more significant or remove the noise around them.
 # If crop is set to false, the function will call the zeroes_outside_boundedbox function.	
-def apply_bounded_box(img, train_crop, val_crop, box_apply_type):
+def apply_bounded_box(img, crop_points, box_apply_type):
 	if box_apply_type not in BOX_APPLY_TYPES:
 		raise Exception("Passed box_apply_type value that doesn't exist.")
-	_, path = ntpath.split(img)
-	img = mpimg.imread(img)
-	if path in val_crop:
-		[x_min, y_min, x_max, y_max] = val_crop[path]
-	else:
-		train_crop[path] = list(map(int, train_crop[path]))
-		[x_min, y_min, x_max, y_max] = train_crop[path]
+	
+	[x_min, y_min, x_max, y_max] = crop_points
 	
 	# Apply bounded box based on box_apply_type.
 	if box_apply_type == BOX_APPLY_TYPE_CROP:
@@ -47,9 +42,12 @@ def resize_img(img, width, height):
 	return cv2.resize(img, (width, height))
 
 def preprocess(x_train, x_val, train_crop, val_crop, box_apply_type="None"):
-	def preprocess_pipeline(img):
+	def preprocess_pipeline(img_index, img, dataset_type):
 		# apply bounded box
-		img = apply_bounded_box(img, train_crop, val_crop, box_apply_type)
+		if dataset_type == "train":
+			img = apply_bounded_box(img, train_crop[img_index], box_apply_type)
+		else:
+			img = apply_bounded_box(img, val_crop[img_index], box_apply_type)
 
 		# grayscale
 		if len(img.shape) == 3 and img.shape[2] == 3:
@@ -66,7 +64,7 @@ def preprocess(x_train, x_val, train_crop, val_crop, box_apply_type="None"):
 		img = img/255
 		return img
 
-	x_train = list(map(preprocess_pipeline, x_train))
-	x_val = list(map(preprocess_pipeline, x_val))
-	
+	x_train = [preprocess_pipeline(i, img, "train") for i, img in enumerate(x_train)]
+	x_val = [preprocess_pipeline(i, img, "val") for i, img in enumerate(x_val)]
+
 	return x_train, x_val
