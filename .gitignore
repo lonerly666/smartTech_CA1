@@ -1,3 +1,4 @@
 .idea
 .env
 tiny-imagenet-200/
+src/ml_module/__pycache__/
