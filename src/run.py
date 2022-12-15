@@ -6,5 +6,4 @@ import matplotlib.pyplot as plt
 
 x_train, x_val = preprocess(x_train, x_val, train_crop, val_crop)
 
-plt.imshow(x_train[0])
-plt.show()
+print(x_train[0].shape)
