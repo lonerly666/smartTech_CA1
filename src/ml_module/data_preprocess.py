@@ -3,6 +3,11 @@ import matplotlib.pyplot as plt
 import ntpath
 import enum
 import cv2
+from keras.utils.np_utils import to_categorical
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 BOX_APPLY_TYPE_NONE = "None"
 BOX_APPLY_TYPE_CROP = "Crop"
@@ -41,7 +46,8 @@ def resize_img(img, width, height):
 		return img
 	return cv2.resize(img, (width, height))
 
-def preprocess(x_train, x_val, train_crop, val_crop, box_apply_type="None"):
+def preprocess_img(x_train, x_val, train_crop, val_crop, box_apply_type):
+	# preprocess images.
 	def preprocess_pipeline(img_index, img, dataset_type):
 		# apply bounded box
 		if dataset_type == "train":
@@ -68,3 +74,27 @@ def preprocess(x_train, x_val, train_crop, val_crop, box_apply_type="None"):
 	x_val = [preprocess_pipeline(i, img, "val") for i, img in enumerate(x_val)]
 
 	return x_train, x_val
+
+def preprocess_labels(y_train, y_val):
+	# ONE HOT ENCODE LABELS.
+	# get labels from wnids.txt
+	with open(os.getenv('ROOT_DIR') + '//tiny-imagenet-200//wnids.txt') as f:
+		labels = [label.strip() for label in f.readlines()]
+	labels_indexes = {label:index for index, label in enumerate(labels)}
+
+	# transform y_train and y_val to be lists of indexes (each index points to 
+	# a position in the labels list above).
+	y_train = [labels_indexes[label] for label in y_train]
+	y_val = [labels_indexes[label] for label in y_val]
+
+	# use to_categorical to implement the dummy / one-hot encoding.
+	y_train = to_categorical(y_train, len(labels))
+	y_val = to_categorical(y_val, len(labels))
+
+	return y_train, y_val
+
+def preprocess(x_train, x_val, train_crop, val_crop, y_train, y_val, box_apply_type="None"):
+	x_train, x_val = preprocess_img(x_train, x_val, train_crop, val_crop, box_apply_type)
+	y_train, y_val = preprocess_labels(y_train, y_val)
+
+	return x_train, y_train, x_val, y_val
