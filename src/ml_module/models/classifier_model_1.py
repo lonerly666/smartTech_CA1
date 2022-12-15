@@ -19,9 +19,9 @@ class Classifier_Model_1:
         self.model.add(Flatten())
         self.model.add(Dense(500, activation='relu'))
         self.model.add(Dropout(0.5))
-        self.model.add(Dense(43, activation='softmax'))
+        self.model.add(Dense(200, activation='softmax'))
         self.model.compile(
-            Adam(lr=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
+            Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
 
     def train(self, x_train, y_train, x_val, y_val):
         history = self.model.fit(x_train, y_train, validation_data=(
