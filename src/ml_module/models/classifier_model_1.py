@@ -5,6 +5,7 @@ from keras.layers import Flatten
 from keras.layers import Dropout
 from keras.layers import Dense
 from keras.optimizers import Adam
+from matplotlib import pyplot as plt
 
 
 class Classifier_Model_1:
@@ -23,8 +24,15 @@ class Classifier_Model_1:
             Adam(lr=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
 
     def train(self, x_train, y_train, x_val, y_val):
-        return self.model.fit(x_train, y_train, validation_data=(
+        history = self.model.fit(x_train, y_train, validation_data=(
             x_val, y_val), epochs=20, batch_size=50, verbose=1, shuffle=1)
+        # Check if overfitting
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.legend(['training', 'validation'])
+        plt.title('Loss')
+        plt.xlabel('epoch')
+        plt.show()
 
     def predict(self, x_test):
         return self.model.predict(x_test)
