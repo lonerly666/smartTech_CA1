@@ -23,7 +23,7 @@ class Classifier_Model_1:
             Adam(lr=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
 
     def train(self, x_train, y_train, x_val, y_val):
-        self.model.fit(x_train, y_train, validation_data=(
+        return self.model.fit(x_train, y_train, validation_data=(
             x_val, y_val), epochs=20, batch_size=50, verbose=1, shuffle=1)
 
     def predict(self, x_test):
