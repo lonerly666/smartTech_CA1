@@ -27,10 +27,10 @@ class Classifier_Model_1:
             x_val, y_val), epochs=20, batch_size=50, verbose=1, shuffle=1)
 
     def predict(self, x_test):
-        self.model.predict(x_test)
+        return self.model.predict(x_test)
 
     def evaluate(self, x_test, y_test):
-        self.model.evaluate(x_test, y_test)
+        return self.model.evaluate(x_test, y_test)
 
     def save(self, path):
         self.model.save(path+"model1.h5")
