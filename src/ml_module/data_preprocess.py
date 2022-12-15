@@ -58,7 +58,7 @@ def preprocess(x_train, x_val, train_crop, val_crop, box_apply_type="None"):
 
 		# resize image
 		new_width, new_height = 64, 64
-		resize_img(img, new_width, new_height)
+		img = resize_img(img, new_width, new_height)
 
 		# normalize
 		img = img/255
