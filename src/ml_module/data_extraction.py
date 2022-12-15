@@ -42,7 +42,7 @@ def import_training_data():
 	training_labels = []
     
 	with open(DATA_DIR + FOLDERS_TO_TRAIN) as f:
-		folders = list(f.read().splitlines())
+		folders = [label.strip() for label in f.readlines()]
 	
 	index = 0
 	image_name_index = {}
