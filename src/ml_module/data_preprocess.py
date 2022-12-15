@@ -1,11 +1,8 @@
-import matplotlib.image as mpimg
-import matplotlib.pyplot as plt
-import ntpath
-import enum
 import cv2
 from keras.utils.np_utils import to_categorical
 from dotenv import load_dotenv
 import os
+import numpy as np
 
 load_dotenv()
 
@@ -64,7 +61,7 @@ def preprocess_img(x_train, x_val, train_crop, val_crop, box_apply_type):
 
 		# resize image
 		new_width, new_height = 64, 64
-		resize_img(img, new_width, new_height)
+		img = resize_img(img, new_width, new_height)
 
 		# normalize
 		img = img/255
@@ -97,4 +94,4 @@ def preprocess(x_train, x_val, train_crop, val_crop, y_train, y_val, box_apply_t
 	x_train, x_val = preprocess_img(x_train, x_val, train_crop, val_crop, box_apply_type)
 	y_train, y_val = preprocess_labels(y_train, y_val)
 
-	return x_train, y_train, x_val, y_val
+	return np.array(x_train), np.array(y_train), np.array(x_val), np.array(y_val)
