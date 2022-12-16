@@ -55,6 +55,9 @@ def preprocess_img(x_train, x_val, train_crop, val_crop, box_apply_type):
 		# grayscale
 		if len(img.shape) == 3 and img.shape[2] == 3:
 			img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+		# apply gaussian blur.
+		img = cv2.GaussianBlur(img, (3, 3), 0)
 		
 		# equalize histogram
 		img = cv2.equalizeHist(img)
