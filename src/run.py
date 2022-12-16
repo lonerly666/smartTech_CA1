@@ -17,3 +17,4 @@ x_val = x_val.reshape(len(x_val), 64, 64, 1)
 
 model2 = Classifier_Model_2()
 model2.train(x_train, y_train, x_val, y_val)
+del model2
