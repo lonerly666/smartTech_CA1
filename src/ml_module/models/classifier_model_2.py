@@ -5,7 +5,7 @@ from keras.layers import Flatten
 from keras.layers import Dropout
 from keras.layers import Dense
 from keras.layers import ZeroPadding2D
-from keras.optimizers import SGD
+from keras.optimizers import SGD, Adam
 from matplotlib import pyplot as plt
 from tensorflow.keras.layers import PReLU, Dense
 from keras.preprocessing.image import ImageDataGenerator
@@ -34,12 +34,12 @@ class Classifier_Model_2:
         self.model.add(Dropout(0.5))
         self.model.add(Dense(200, activation='softmax'))
         self.model.compile(
-            SGD(learning_rate=0.01, momentum=0.9, decay=0.0005), loss='categorical_crossentropy', metrics=['accuracy'])
+            Adam(learning_rate=0.01), loss='categorical_crossentropy', metrics=['accuracy'])
 
     def train(self, x_train, y_train, x_val, y_val):
         datagen = ImageDataGenerator(width_shift_range=0.1, height_shift_range=0.1, zoom_range=0.1, shear_range=0.1, rotation_range=5)
         # set batch_size to 1 since we want to use SGD.
-        history = self.model.fit(datagen.flow(x_train, y_train, batch_size=1), validation_data=(
+        history = self.model.fit(datagen.flow(x_train, y_train, batch_size=50), validation_data=(
             x_val, y_val), epochs=20, verbose=1, shuffle=1)
         # Check if overfitting
         plt.plot(history.history['loss'])
