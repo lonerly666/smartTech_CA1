@@ -11,6 +11,9 @@ BOX_APPLY_TYPE_CROP = "Crop"
 BOX_APPLY_TYPE_ZEROES_OUT = "ZeroesOut"
 BOX_APPLY_TYPES = [BOX_APPLY_TYPE_NONE, BOX_APPLY_TYPE_CROP, BOX_APPLY_TYPE_ZEROES_OUT]
 
+COLOR_CHANNEL_RGB = "RGB"
+COLOR_CHANNEL_GRAY = "GRAY"
+
 # This function crops the images
 def crop(img, x_min, y_min, x_max, y_max):
     return img[y_min:y_max, x_min:x_max]
@@ -43,35 +46,56 @@ def resize_img(img, width, height):
 		return img
 	return cv2.resize(img, (width, height))
 
-def preprocess_img(x_train, x_val, train_crop, val_crop, box_apply_type):
+def preprocess_img(
+	x_train, 
+	x_val, 
+	train_crop, 
+	val_crop, 
+	box_apply_type,
+	color_channel,
+	blur,
+	hist_equalization,
+	resize_to
+):
 	# preprocess images.
-	def preprocess_pipeline(img_index, img, dataset_type):
+	def preprocess_pipeline(img_index, img, dataset_type, resize_to):
 		# apply bounded box
 		if dataset_type == "train":
 			img = apply_bounded_box(img, train_crop[img_index], box_apply_type)
 		else:
 			img = apply_bounded_box(img, val_crop[img_index], box_apply_type)
 
-		# grayscale
-		if len(img.shape) == 3 and img.shape[2] == 3:
-			img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+		# Convert color channel
+		if color_channel == COLOR_CHANNEL_GRAY:
+			if len(img.shape) == 3 and img.shape[2] == 3:
+				img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+		elif color_channel == COLOR_CHANNEL_RGB:
+			if len(img.shape) == 2:
+				img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+		else:
+			raise Exception("Destination color channel is not recognized")
 
-		# apply gaussian blur.
-		img = cv2.GaussianBlur(img, (3, 3), 0)
-		
-		# equalize histogram
-		img = cv2.equalizeHist(img)
+		# Gaussian blur
+		if blur:
+			img = cv2.GaussianBlur(img, (3, 3), 0)
+
+		# Histogram equalization
+		if hist_equalization:
+			img = cv2.equalizeHist(img)
 
 		# resize image
-		new_width, new_height = 64, 64
+		if resize_to is None:
+			# Do not resize if not specified
+			resize_to = (64, 64)
+		new_width, new_height = resize_to
 		img = resize_img(img, new_width, new_height)
 
 		# normalize
 		img = img/255
 		return img
 
-	x_train = [preprocess_pipeline(i, img, "train") for i, img in enumerate(x_train)]
-	x_val = [preprocess_pipeline(i, img, "val") for i, img in enumerate(x_val)]
+	x_train = [preprocess_pipeline(i, img, "train", resize_to) for i, img in enumerate(x_train)]
+	x_val = [preprocess_pipeline(i, img, "val", resize_to) for i, img in enumerate(x_val)]
 
 	return x_train, x_val
 
@@ -93,8 +117,37 @@ def preprocess_labels(y_train, y_val):
 
 	return y_train, y_val
 
-def preprocess(x_train, x_val, train_crop, val_crop, y_train, y_val, box_apply_type="None"):
-	x_train, x_val = preprocess_img(x_train, x_val, train_crop, val_crop, box_apply_type)
+def preprocess(
+	x_train, 
+	x_val, 
+	train_crop, 
+	val_crop, 
+	y_train, 
+	y_val, 
+	box_apply_type="None",
+	color_channel=COLOR_CHANNEL_GRAY,
+	blur=True,
+	hist_equalization=True,
+	resize_to=(64, 64)
+):
+	x_train, x_val = preprocess_img(
+		x_train, 
+		x_val, 
+		train_crop, 
+		val_crop, 
+		box_apply_type,
+		color_channel,
+		blur,
+		hist_equalization,
+		resize_to
+	)
 	y_train, y_val = preprocess_labels(y_train, y_val)
 
-	return np.array(x_train), np.array(y_train), np.array(x_val), np.array(y_val)
+	x_train, y_train, x_val, y_val = np.array(x_train), np.array(y_train), np.array(x_val), np.array(y_val)
+	
+	num_channels = 1 if color_channel == COLOR_CHANNEL_GRAY else 3
+	resize_to = resize_to if resize_to is not None else (64, 64)
+	x_train = x_train.reshape(len(x_train), resize_to[0], resize_to[1], num_channels)
+	x_val = x_val.reshape(len(x_val), resize_to[0], resize_to[1], num_channels)
+
+	return x_train, y_train, x_val, y_val
