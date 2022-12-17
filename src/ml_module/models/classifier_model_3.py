@@ -8,7 +8,7 @@ from keras.optimizers import Adam
 from matplotlib import pyplot as plt
 
 #Modified LeNet model (added more Convolutional layers)
-class Classifier_Model_2:
+class Classifier_Model_3:
     def __init__(self):
         self.model = Sequential([
             Conv2D(120, (3, 3), activation='relu', input_shape=(64, 64, 1)),
@@ -25,7 +25,7 @@ class Classifier_Model_2:
             Dense(200, activation='softmax')
         ])
         self.model.compile(
-            Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
+            Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
 
     def train(self, x_train, y_train, x_val, y_val):
         history = self.model.fit(x_train, y_train, validation_data=(
