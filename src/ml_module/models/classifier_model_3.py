@@ -6,8 +6,25 @@ from keras.layers import Dropout
 from keras.layers import Dense
 from keras.optimizers import Adam
 from matplotlib import pyplot as plt
+from keras.preprocessing.image import ImageDataGenerator
 
-#Modified LeNet model (added more Convolutional layers)
+"""
+Modified LeNet model
+
+1st iteration:
+- added more convolutional layers
+- tweaked the learning rate to 0.0001
+- increase the epochs to 80 
+- used ImageDataGenerator to augment the data
+- accuracy ~12%
+
+2nd iteration:
+- increase the epochs to 120 since its not overfitting
+- accuracy still low ~16%
+
+"""
+
+
 class Classifier_Model_3:
     def __init__(self):
         self.model = Sequential([
@@ -28,8 +45,11 @@ class Classifier_Model_3:
             Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
 
     def train(self, x_train, y_train, x_val, y_val):
-        history = self.model.fit(x_train, y_train, validation_data=(
-            x_val, y_val), epochs=10, batch_size=50, verbose=1, shuffle=1)
+        # Data augmentation
+        datagen = ImageDataGenerator(width_shift_range=0.1, height_shift_range=0.1,
+                                     zoom_range=0.1, shear_range=0.1, horizontal_flip=True)
+        history = self.model.fit(datagen.flow(x_train, y_train, batch_size=50), validation_data=(
+            x_val, y_val), epochs=120, batch_size=50, verbose=1, shuffle=1)
         # Check if overfitting
         plt.plot(history.history['loss'])
         plt.plot(history.history['val_loss'])

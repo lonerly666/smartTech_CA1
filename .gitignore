@@ -3,3 +3,4 @@
 tiny-imagenet-200/
 src/ml_module/__pycache__/
 src/ml_module/models/__pycache__/
+src/ml_module/saved/
