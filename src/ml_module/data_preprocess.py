@@ -57,13 +57,12 @@ def preprocess_img(
 	hist_equalization,
 	resize_to
 ):
-	# preprocess images.
+	# preprocess images, also handle discarding images if need to.
 	def preprocess_pipeline(img_index, img, dataset_type, resize_to):
-		# apply bounded box
+		# only apply bounded box to train dataset until we can get the bounded box coordinates
+		# for the test dataset.
 		if dataset_type == "train":
 			img = apply_bounded_box(img, train_crop[img_index], box_apply_type)
-		else:
-			img = apply_bounded_box(img, val_crop[img_index], box_apply_type)
 
 		# Convert color channel
 		if color_channel == COLOR_CHANNEL_GRAY:
