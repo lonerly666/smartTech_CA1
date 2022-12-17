@@ -50,9 +50,9 @@ class Classifier_Model_2:
         self.model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
         self.model.add(Flatten())
         self.model.add(Dense(4096, activation=PReLU()))
-        self.model.add(Dropout(0.5))
+        self.model.add(Dropout(0.7))
         self.model.add(Dense(4096, activation=PReLU()))
-        self.model.add(Dropout(0.5))
+        self.model.add(Dropout(0.7))
         self.model.add(Dense(200, activation='softmax'))
         self.model.compile(
             SGD(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
@@ -61,7 +61,7 @@ class Classifier_Model_2:
         datagen = ImageDataGenerator(width_shift_range=0.1, height_shift_range=0.1, zoom_range=0.1, shear_range=0.1, horizontal_flip=True, vertical_flip=True)
         # set batch_size to 1 since we want to use SGD.
         history = self.model.fit(datagen.flow(x_train, y_train, batch_size=50), validation_data=(
-            x_val, y_val), epochs=30, verbose=1, shuffle=1)
+            x_val, y_val), epochs=50, verbose=1, shuffle=1)
         # Check if overfitting
         plt.plot(history.history['loss'])
         plt.plot(history.history['val_loss'])

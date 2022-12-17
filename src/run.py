@@ -14,16 +14,15 @@ x_train, y_train, x_val, y_val = preprocess(
     val_crop,
     y_train,
     y_val,
-    box_apply_type="None",
-    color_channel="RGB",
-    blur=False,
-    hist_equalization=False,
-    resize_to=(64, 64)
+    box_apply_type="DiscardZeroArea",
+    color_channel="GRAY",
+    blur=True,
+    hist_equalization=True,
+    resize_to=(32, 32)
 )
 
-
-model2 = Classifier_Model_2()
-model2.train(x_train, y_train, x_val, y_val)
-
-# print(model2.summary())
-# model2.save('./src/ml_module/saved/model2_3.h5')
+model1 = Classifier_Model_1()
+model1.train(x_train, y_train, x_val, y_val)
+print(model1.summary())
+model1.save('./src/ml_module/saved/model1.h5')
+del model1
