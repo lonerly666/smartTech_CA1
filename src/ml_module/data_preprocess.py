@@ -88,9 +88,15 @@ def preprocess_img(
 		if blur:
 			img = cv2.GaussianBlur(img, (3, 3), 0)
 
-		# Histogram equalization only for grayscaled images
-		if len(img.shape) == 2 and hist_equalization:
-			img = cv2.equalizeHist(img)
+		# Histogram equalization
+		if hist_equalization:
+			if len(img.shape) == 2:
+				img = cv2.equalizeHist(img)
+			elif len(img.shape) == 3:
+				img = np.array(img)
+				img[:, :, 0] = cv2.equalizeHist(img[:, :, 0])
+				img[:, :, 1] = cv2.equalizeHist(img[:, :, 1])
+				img[:, :, 2] = cv2.equalizeHist(img[:, :, 2])
 
 		# resize image
 		if resize_to is None:
@@ -105,7 +111,7 @@ def preprocess_img(
 		img = img/255
 		return img
 
-	removed_x_train, removed_x_val = [], []
+	removed_x_train = []
 	x_train = [preprocess_pipeline(i, img, "train", resize_to) for i, img in enumerate(x_train)]
 	x_val = [preprocess_pipeline(i, img, "val", resize_to) for i, img in enumerate(x_val)]
 
@@ -113,18 +119,12 @@ def preprocess_img(
 		if img is None:
 			removed_x_train.append(i)
 
-	for i, img in enumerate(x_val):
-		if img is None:
-			removed_x_val.append(i)
-
 	x_train = list(filter(lambda img: (img is not None), x_train))
 	x_val = list(filter(lambda img: (img is not None), x_val))
 
 	print("Discarding {} images from training data".format(len(removed_x_train)))
-	print("Discarding {} images from validation data".format(len(removed_x_val)))
 
-	return x_train, x_val, removed_x_train, removed_x_val
-
+	return x_train, x_val, removed_x_train
 def preprocess_labels(y_train, y_val):
 	# ONE HOT ENCODE LABELS.
 	# get labels from wnids.txt
@@ -156,7 +156,7 @@ def preprocess(
 	hist_equalization=True,
 	resize_to=(64, 64)
 ):
-	x_train, x_val, removed_x_train, removed_x_val = preprocess_img(
+	x_train, x_val, removed_x_train = preprocess_img(
 		x_train, 
 		x_val, 
 		train_crop, 
@@ -169,13 +169,9 @@ def preprocess(
 	)
 
 	removed_x_train = set(removed_x_train)
-	removed_x_val = set(removed_x_val)
 	for i in range(len(y_train) - 1, -1, -1):
 		if i in removed_x_train:
 			y_train.pop(i)
-	for i in range(len(y_val) - 1, -1, -1):
-		if i in removed_x_val:
-			y_val.pop(i)
 
 	y_train, y_val = preprocess_labels(y_train, y_val)
 
