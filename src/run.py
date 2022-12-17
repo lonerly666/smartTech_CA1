@@ -25,5 +25,5 @@ x_train, y_train, x_val, y_val = preprocess(
 model2 = Classifier_Model_2()
 model2.train(x_train, y_train, x_val, y_val)
 
-print(model2.summary())
-model2.save('./')
+# print(model2.summary())
+# model2.save('./src/ml_module/saved/model2_3.h5')
