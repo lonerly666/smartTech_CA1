@@ -28,7 +28,7 @@ Modified LeNet model
 class Classifier_Model_3:
     def __init__(self):
         self.model = Sequential([
-            Conv2D(120, (3, 3), activation='relu', input_shape=(64, 64, 1)),
+            Conv2D(120, (3, 3), activation='relu', input_shape=(32, 32, 1)),
             MaxPooling2D(pool_size=(2, 2)),
             Conv2D(60, (3, 3), activation='relu'),
             MaxPooling2D(pool_size=(2, 2)),
@@ -49,7 +49,7 @@ class Classifier_Model_3:
         datagen = ImageDataGenerator(width_shift_range=0.1, height_shift_range=0.1,
                                      zoom_range=0.1, shear_range=0.1, horizontal_flip=True)
         history = self.model.fit(datagen.flow(x_train, y_train, batch_size=50), validation_data=(
-            x_val, y_val), epochs=120, batch_size=50, verbose=1, shuffle=1)
+            x_val, y_val), epochs=30, batch_size=50, verbose=1, shuffle=1)
         # Check if overfitting
         plt.plot(history.history['loss'])
         plt.plot(history.history['val_loss'])
