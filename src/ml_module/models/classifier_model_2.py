@@ -8,7 +8,7 @@ from keras.layers import Dense
 from keras.layers import ZeroPadding2D
 from keras.optimizers import SGD, Adam
 from matplotlib import pyplot as plt
-from tensorflow.keras.layers import PReLU, Dense
+from keras.layers import PReLU, Dense
 from keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.regularizers import l2
 

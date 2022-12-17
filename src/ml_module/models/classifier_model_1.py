@@ -7,25 +7,33 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 from matplotlib import pyplot as plt
 
+"""
+# LeNet model
+- overfitting
+- accuracy ~ 10% 
+
+"""
 
 class Classifier_Model_1:
     def __init__(self):
-        self.model = Sequential()
-        self.model.add(
-            Conv2D(60, (5, 5), activation='relu', input_shape=(64, 64, 1)))
-        self.model.add(MaxPooling2D(pool_size=(2, 2)))
-        self.model.add(Conv2D(30, (3, 3), activation='relu'))
-        self.model.add(MaxPooling2D(pool_size=(2, 2)))
-        self.model.add(Flatten())
-        self.model.add(Dense(500, activation='relu'))
-        self.model.add(Dropout(0.5))
-        self.model.add(Dense(200, activation='softmax'))
+        self.model = Sequential(
+            [
+                Conv2D(60, (5, 5), activation='relu', input_shape=(64, 64, 1)),
+                MaxPooling2D(pool_size=(2, 2)),
+                Conv2D(30, (3, 3), activation='relu'),
+                MaxPooling2D(pool_size=(2, 2)),
+                Flatten(),
+                Dense(500, activation='relu'),
+                Dropout(0.5),
+                Dense(200, activation='softmax'),
+            ]
+        )
         self.model.compile(
             Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
 
     def train(self, x_train, y_train, x_val, y_val):
-        history = self.model.fit(x_train, y_train, validation_data=(
-            x_val, y_val), epochs=20, batch_size=50, verbose=1, shuffle=1)
+        history = self.model.fit(x_train, y_train, batch_size=50, validation_data=(
+            x_val, y_val), epochs=20, verbose=1, shuffle=1)
         # Check if overfitting
         plt.plot(history.history['loss'])
         plt.plot(history.history['val_loss'])
