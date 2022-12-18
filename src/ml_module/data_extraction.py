@@ -81,10 +81,15 @@ def import_validation_data():
 
 def import_test_data():
 	test_images = []
+
+	# Map each test image name to its position / index in test_images. we use this for prediction.
+	# TODO: not a good solution since the ordering of test_images may change.
+	test_names_indexes = []
 	test_images_folder = DATA_DIR + "test//images//"
-	for img_name in os.listdir(test_images_folder):
+	for i, img_name in enumerate(os.listdir(test_images_folder)):
 		test_images.append(mpimg.imread(test_images_folder + img_name))
-	return test_images
+		test_names_indexes.append(img_name)
+	return test_images, test_names_indexes
 
 
 
@@ -95,7 +100,7 @@ def extract_data():
 
     x_val, y_val, val_crop = import_validation_data()
 
-    x_test = import_test_data()
+    x_test, test_names_indexes = import_test_data()
 
     # maps each label to a specific index in an array of length 200 (the number of classes for tiny imagenet).
 	# this is to ensure consistency between each component in the pipeline.
@@ -111,4 +116,4 @@ def extract_data():
             if line[0] in labels:
                 labels_english[line[0]] = ' '.join(line[1:])
 
-    return (x_train, y_train, train_crop), (x_val, y_val, val_crop), x_test, labels_indexes, labels_english
+    return (x_train, y_train, train_crop), (x_val, y_val, val_crop), x_test, labels_indexes, labels_english, test_names_indexes
