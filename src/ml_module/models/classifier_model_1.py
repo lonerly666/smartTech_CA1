@@ -12,15 +12,15 @@ from matplotlib import pyplot as plt
 1st Iteration:
 - overfitting
 - accuracy ~ 10% 
+- grayscale, size 64, 64, applied gaussian blur, histogram equalization
 
 2nd iteration:
 - used tanh as activation function
-- accuracy capped at 10% 
+- validation accuracy: 10%
 - fixed overfitting
+- grayscale, resized to 32, 32, applied gaussian blur, histogram equalization
 
 """
-
-
 class Classifier_Model_1:
     def __init__(self):
         self.model = Sequential(

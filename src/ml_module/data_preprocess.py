@@ -4,8 +4,6 @@ from dotenv import load_dotenv
 import os
 import numpy as np
 
-load_dotenv()
-
 BOX_APPLY_TYPE_NONE = "None"
 BOX_APPLY_TYPE_CROP = "Crop"
 BOX_APPLY_TYPE_ZEROES_OUT = "ZeroesOut"
@@ -126,12 +124,8 @@ def preprocess_img(
 	print("Discarding {} images from training data".format(len(removed_x_train)))
 
 	return x_train, x_val, x_test, removed_x_train
-def preprocess_labels(y_train, y_val):
+def preprocess_labels(y_train, y_val, labels_indexes):
 	# ONE HOT ENCODE LABELS.
-	# get labels from wnids.txt
-	with open(os.getenv('ROOT_DIR') + '//tiny-imagenet-200//wnids.txt') as f:
-		labels = [label.strip() for label in f.readlines()]
-	labels_indexes = {label:index for index, label in enumerate(labels)}
 
 	# transform y_train and y_val to be lists of indexes (each index points to 
 	# a position in the labels list above).
@@ -139,8 +133,8 @@ def preprocess_labels(y_train, y_val):
 	y_val = [labels_indexes[label] for label in y_val]
 
 	# use to_categorical to implement the dummy / one-hot encoding.
-	y_train = to_categorical(y_train, len(labels))
-	y_val = to_categorical(y_val, len(labels))
+	y_train = to_categorical(y_train, len(labels_indexes))
+	y_val = to_categorical(y_val, len(labels_indexes))
 
 	return y_train, y_val
 
@@ -152,11 +146,12 @@ def preprocess(
 	val_crop, 
 	y_train, 
 	y_val, 
+	labels_indexes,
 	box_apply_type="None",
 	color_channel=COLOR_CHANNEL_GRAY,
 	blur=True,
 	hist_equalization=True,
-	resize_to=(64, 64)
+	resize_to=(64, 64),
 ):
 	x_train, x_val, x_test, removed_x_train = preprocess_img(
 		x_train, 
@@ -176,7 +171,7 @@ def preprocess(
 		if i in removed_x_train:
 			y_train.pop(i)
 
-	y_train, y_val = preprocess_labels(y_train, y_val)
+	y_train, y_val = preprocess_labels(y_train, y_val, labels_indexes)
 
 	x_train, y_train, x_val, y_val, x_test = np.array(x_train), np.array(y_train), np.array(x_val), np.array(y_val), np.array(x_test)
 	
