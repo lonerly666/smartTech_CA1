@@ -11,6 +11,7 @@ from matplotlib import pyplot as plt
 from keras.layers import PReLU, Dense
 from keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.regularizers import l2
+from tensorflow import keras
 
 """
 CNN inspired by http://vision.stanford.edu/teaching/cs231n/reports/2015/pdfs/lucash_final.pdf
@@ -33,8 +34,14 @@ a bit overfitting.
 5. Dropout layer to 0.7
 """
 
+# iteration 4
+# achieves the same result as the previous iteration (the only difference is it used 80 epochs.)
+
 class Classifier_Model_2:
     def __init__(self):
+        self.model = None
+
+    def build(self):
         regularizer = l2(0.01)
         self.model = Sequential()
         self.model.add(Conv2D(96, (3, 3), activation=PReLU(), input_shape=(64, 64, 3), kernel_regularizer=regularizer))
@@ -63,7 +70,7 @@ class Classifier_Model_2:
         datagen = ImageDataGenerator(width_shift_range=0.1, height_shift_range=0.1, zoom_range=0.1, shear_range=0.1, horizontal_flip=True, vertical_flip=True)
         # set batch_size to 1 since we want to use SGD.
         history = self.model.fit(datagen.flow(x_train, y_train, batch_size=50), validation_data=(
-            x_val, y_val), epochs=50, verbose=1, shuffle=1)
+            x_val, y_val), epochs=80, verbose=1, shuffle=1)
         # Check if overfitting
         plt.plot(history.history['loss'])
         plt.plot(history.history['val_loss'])
@@ -85,4 +92,4 @@ class Classifier_Model_2:
         return self.model.summary()
 
     def load(self, path):
-        pass
+        self.model = keras.models.load_model(path)

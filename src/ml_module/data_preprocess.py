@@ -4,8 +4,6 @@ from dotenv import load_dotenv
 import os
 import numpy as np
 
-load_dotenv()
-
 BOX_APPLY_TYPE_NONE = "None"
 BOX_APPLY_TYPE_CROP = "Crop"
 BOX_APPLY_TYPE_ZEROES_OUT = "ZeroesOut"
@@ -57,6 +55,7 @@ def resize_img(img, width, height):
 def preprocess_img(
 	x_train, 
 	x_val, 
+	x_test,
 	train_crop, 
 	val_crop, 
 	box_apply_type,
@@ -114,23 +113,19 @@ def preprocess_img(
 	removed_x_train = []
 	x_train = [preprocess_pipeline(i, img, "train", resize_to) for i, img in enumerate(x_train)]
 	x_val = [preprocess_pipeline(i, img, "val", resize_to) for i, img in enumerate(x_val)]
+	x_test = [preprocess_pipeline(i, img, "test", resize_to) for i, img in enumerate(x_test)]
 
 	for i, img in enumerate(x_train):
 		if img is None:
 			removed_x_train.append(i)
 
 	x_train = list(filter(lambda img: (img is not None), x_train))
-	x_val = list(filter(lambda img: (img is not None), x_val))
 
 	print("Discarding {} images from training data".format(len(removed_x_train)))
 
-	return x_train, x_val, removed_x_train
-def preprocess_labels(y_train, y_val):
+	return x_train, x_val, x_test, removed_x_train
+def preprocess_labels(y_train, y_val, labels_indexes):
 	# ONE HOT ENCODE LABELS.
-	# get labels from wnids.txt
-	with open(os.getenv('ROOT_DIR') + '//tiny-imagenet-200//wnids.txt') as f:
-		labels = [label.strip() for label in f.readlines()]
-	labels_indexes = {label:index for index, label in enumerate(labels)}
 
 	# transform y_train and y_val to be lists of indexes (each index points to 
 	# a position in the labels list above).
@@ -138,27 +133,30 @@ def preprocess_labels(y_train, y_val):
 	y_val = [labels_indexes[label] for label in y_val]
 
 	# use to_categorical to implement the dummy / one-hot encoding.
-	y_train = to_categorical(y_train, len(labels))
-	y_val = to_categorical(y_val, len(labels))
+	y_train = to_categorical(y_train, len(labels_indexes))
+	y_val = to_categorical(y_val, len(labels_indexes))
 
 	return y_train, y_val
 
 def preprocess(
 	x_train, 
 	x_val, 
+	x_test,
 	train_crop, 
 	val_crop, 
 	y_train, 
 	y_val, 
+	labels_indexes,
 	box_apply_type="None",
 	color_channel=COLOR_CHANNEL_GRAY,
 	blur=True,
 	hist_equalization=True,
-	resize_to=(64, 64)
+	resize_to=(64, 64),
 ):
-	x_train, x_val, removed_x_train = preprocess_img(
+	x_train, x_val, x_test, removed_x_train = preprocess_img(
 		x_train, 
 		x_val, 
+		x_test,
 		train_crop, 
 		val_crop, 
 		box_apply_type,
@@ -173,13 +171,14 @@ def preprocess(
 		if i in removed_x_train:
 			y_train.pop(i)
 
-	y_train, y_val = preprocess_labels(y_train, y_val)
+	y_train, y_val = preprocess_labels(y_train, y_val, labels_indexes)
 
-	x_train, y_train, x_val, y_val = np.array(x_train), np.array(y_train), np.array(x_val), np.array(y_val)
+	x_train, y_train, x_val, y_val, x_test = np.array(x_train), np.array(y_train), np.array(x_val), np.array(y_val), np.array(x_test)
 	
 	num_channels = 1 if color_channel == COLOR_CHANNEL_GRAY else 3
 	resize_to = resize_to if resize_to is not None else (64, 64)
 	x_train = x_train.reshape(len(x_train), resize_to[0], resize_to[1], num_channels)
 	x_val = x_val.reshape(len(x_val), resize_to[0], resize_to[1], num_channels)
+	x_test = x_test.reshape(len(x_test), resize_to[0], resize_to[1], num_channels)
 
-	return x_train, y_train, x_val, y_val
+	return x_train, y_train, x_val, y_val, x_test
