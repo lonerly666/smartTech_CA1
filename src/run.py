@@ -8,9 +8,6 @@ from ml_module.models.classifier_model_2 import Classifier_Model_2
 
 (x_train, y_train, train_crop), (x_val, y_val, val_crop) = extract_data()
 
-temp_y_train = y_train
-temp_y_val = y_val
-
 x_train, y_train, x_val, y_val = preprocess(
     x_train,
     x_val,
@@ -25,4 +22,4 @@ x_train, y_train, x_val, y_val = preprocess(
     resize_to=(64, 64)
 )
 
-explore_data(temp_y_train, temp_y_val)
+explore_data(y_train, y_val)

@@ -1,12 +1,12 @@
 from matplotlib import pyplot as plt
-
+import numpy as np
 
 def plot_total_images(y_train, y_val):
     temp = set(y_train)
     temp_dict = {}
     for i, val in enumerate(temp):
         temp_dict[val] = i
-    nums = [i for i in range(200)]
+    nums = [0 for _ in range(200)]
     for val in y_train:
         nums[temp_dict[val]] += 1
     for val in y_val:
@@ -23,7 +23,7 @@ def plot_training_data(y_train):
     temp_dict = {}
     for i, val in enumerate(temp):
         temp_dict[val] = i
-    nums = [i for i in range(200)]
+    nums = [0 for _ in range(200)]
     for val in y_train:
         nums[temp_dict[val]] += 1
     plt.figure(figsize=(12, 4))
@@ -38,7 +38,7 @@ def plot_val_data(y_val):
     temp_dict = {}
     for i, val in enumerate(temp):
         temp_dict[val] = i
-    nums = [i for i in range(200)]
+    nums = [0 for _ in range(200)]
     for val in y_val:
         nums[temp_dict[val]] += 1
     plt.figure(figsize=(12, 4))
@@ -50,6 +50,10 @@ def plot_val_data(y_val):
 
 
 def explore_data(y_train, y_val):
-    plot_training_data(y_train)
-    plot_val_data(y_val)
-    plot_total_images(y_train, y_val)
+    # We assume that the labels have been one-hot encoded by this point and in the form of numpy arrays.
+    temp_y_train = np.argmax(y_train.astype(int), axis=1).tolist()
+    temp_y_val = np.argmax(y_val.astype(int), axis=1).tolist()
+
+    plot_training_data(temp_y_train)
+    plot_val_data(temp_y_val)
+    plot_total_images(temp_y_train, temp_y_val)
