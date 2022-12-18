@@ -66,6 +66,9 @@ class Classifier_Model_3:
 
     def save(self, path):
         self.model.save(path+"model1.h5")
+    
+    def summary(self):
+        return self.model.summary()
 
     def load(self, path):
         pass
