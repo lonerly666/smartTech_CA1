@@ -79,6 +79,12 @@ def import_validation_data():
 			validation_crop.append(list(map(int, formatted_info[2:])))
 	return validation_images, validation_labels, validation_crop
 
+def import_test_data():
+	test_images = []
+	test_images_folder = DATA_DIR + "test//images//"
+	for img_name in os.listdir(test_images_folder):
+		test_images.append(mpimg.imread(test_images_folder + img_name))
+	return test_images
 
 def extract_data():
     download()
@@ -87,4 +93,6 @@ def extract_data():
 
     x_val, y_val, val_crop = import_validation_data()
 
-    return (x_train, y_train, train_crop), (x_val, y_val, val_crop)
+    x_test = import_test_data()
+
+    return (x_train, y_train, train_crop), (x_val, y_val, val_crop), x_test
