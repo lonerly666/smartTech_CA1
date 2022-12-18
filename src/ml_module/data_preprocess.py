@@ -57,6 +57,7 @@ def resize_img(img, width, height):
 def preprocess_img(
 	x_train, 
 	x_val, 
+	x_test,
 	train_crop, 
 	val_crop, 
 	box_apply_type,
@@ -114,17 +115,17 @@ def preprocess_img(
 	removed_x_train = []
 	x_train = [preprocess_pipeline(i, img, "train", resize_to) for i, img in enumerate(x_train)]
 	x_val = [preprocess_pipeline(i, img, "val", resize_to) for i, img in enumerate(x_val)]
+	x_test = [preprocess_pipeline(i, img, "test", resize_to) for i, img in enumerate(x_test)]
 
 	for i, img in enumerate(x_train):
 		if img is None:
 			removed_x_train.append(i)
 
 	x_train = list(filter(lambda img: (img is not None), x_train))
-	x_val = list(filter(lambda img: (img is not None), x_val))
 
 	print("Discarding {} images from training data".format(len(removed_x_train)))
 
-	return x_train, x_val, removed_x_train
+	return x_train, x_val, x_test, removed_x_train
 def preprocess_labels(y_train, y_val):
 	# ONE HOT ENCODE LABELS.
 	# get labels from wnids.txt
@@ -146,6 +147,7 @@ def preprocess_labels(y_train, y_val):
 def preprocess(
 	x_train, 
 	x_val, 
+	x_test,
 	train_crop, 
 	val_crop, 
 	y_train, 
@@ -156,9 +158,10 @@ def preprocess(
 	hist_equalization=True,
 	resize_to=(64, 64)
 ):
-	x_train, x_val, removed_x_train = preprocess_img(
+	x_train, x_val, x_test, removed_x_train = preprocess_img(
 		x_train, 
 		x_val, 
+		x_test,
 		train_crop, 
 		val_crop, 
 		box_apply_type,
@@ -175,11 +178,12 @@ def preprocess(
 
 	y_train, y_val = preprocess_labels(y_train, y_val)
 
-	x_train, y_train, x_val, y_val = np.array(x_train), np.array(y_train), np.array(x_val), np.array(y_val)
+	x_train, y_train, x_val, y_val, x_test = np.array(x_train), np.array(y_train), np.array(x_val), np.array(y_val), np.array(x_test)
 	
 	num_channels = 1 if color_channel == COLOR_CHANNEL_GRAY else 3
 	resize_to = resize_to if resize_to is not None else (64, 64)
 	x_train = x_train.reshape(len(x_train), resize_to[0], resize_to[1], num_channels)
 	x_val = x_val.reshape(len(x_val), resize_to[0], resize_to[1], num_channels)
+	x_test = x_test.reshape(len(x_test), resize_to[0], resize_to[1], num_channels)
 
-	return x_train, y_train, x_val, y_val
+	return x_train, y_train, x_val, y_val, x_test
