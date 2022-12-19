@@ -28,7 +28,7 @@ Modified LeNet model
 class Classifier_Model_3:
     def __init__(self):
         self.model = Sequential([
-            Conv2D(120, (3, 3), activation='relu', input_shape=(32, 32, 1)),
+            Conv2D(120, (3, 3), activation='relu', input_shape=(64, 64, 1)),
             MaxPooling2D(pool_size=(2, 2)),
             Conv2D(60, (3, 3), activation='relu'),
             MaxPooling2D(pool_size=(2, 2)),
